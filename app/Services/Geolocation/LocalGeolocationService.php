@@ -56,19 +56,21 @@ class LocalGeolocationService implements GeolocationService
     {
         $place = $this->getPlace($latitude, $longitude);
 
-        if (is_null($place)) {
-            throw new InvalidCoordinatesException;
-        }
-
-        return $place['label'];
+        return sprintf('%s, %s', $place['label'], $place['country_code']);
     }
 
-    private function getPlace(string $latitude, string $longitude): ?array
+    private function getPlace(string $latitude, string $longitude): array
     {
-        return collect($this->places)->first(
+        $place =  collect($this->places)->first(
             function (array $place) use ($latitude, $longitude) {
                 return $place['latitude'] === $latitude and $place['longitude'] === $longitude;
             }
         );
+
+        if (is_null($place)) {
+            throw new InvalidCoordinatesException;
+        }
+
+        return $place;
     }
 }

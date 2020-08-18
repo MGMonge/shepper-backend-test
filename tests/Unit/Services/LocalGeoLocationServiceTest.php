@@ -13,7 +13,7 @@ class LocalGeoLocationServiceTest extends TestCase
      */
     protected $SUT;
 
-    public function setUp(): void
+    public function _before(): void
     {
         $this->SUT = new LocalGeolocationService();
     }
@@ -35,15 +35,23 @@ class LocalGeoLocationServiceTest extends TestCase
     }
 
     /** @test */
+    function it_throws_an_exception_when_place_is_not_found_by_given_coordinates_when_checking_country()
+    {
+        $this->expectException(InvalidCoordinatesException::class);
+
+        $this->SUT->areCoordinatesInCountry('1', '-1', 'GB');
+    }
+
+    /** @test */
     function it_returns_a_label_by_given_coordinates()
     {
         $actual = $this->SUT->getLabelForCoordinates('51.499479', '-0.085499');
 
-        $this->assertSame('London', $actual);
+        $this->assertSame('London, GB', $actual);
     }
 
     /** @test */
-    function it_throws_an_exception_when_place_is_not_found_by_given_coordinates()
+    function it_throws_an_exception_when_place_is_not_found_by_given_coordinates_when_getting_the_label()
     {
         $this->expectException(InvalidCoordinatesException::class);
 
