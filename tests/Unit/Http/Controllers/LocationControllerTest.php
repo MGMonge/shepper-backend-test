@@ -12,6 +12,10 @@ class LocationControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+    //
+    // Store a location
+    //
+
     /** @test */
     function guests_cannot_store_a_location()
     {
@@ -178,5 +182,48 @@ class LocationControllerTest extends TestCase
         ]);
 
         $response->assertJsonValidationErrors(['general']);
+    }
+
+    //
+    // View all locations
+    //
+
+    /** @test */
+    function guests_cannot_view_location()
+    {
+        $response = $this->json('GET', route('locations.index'));
+
+        $response->assertUnauthorized();
+    }
+
+    /** @test */
+    function it_returns_an_empty_array_when_there_is_no_locations()
+    {
+        $user = factory(User::class)->create();
+        $this->actingAs($user, 'api');
+
+        $response = $this->json('GET', route('locations.index'));
+
+        $response->assertOk();
+        $response->assertExactJson([
+            'data' => []
+        ]);
+    }
+
+    /** @test */
+    function users_can_view_their_locations()
+    {
+        $user     = factory(User::class)->create();
+        $location = factory(Location::class)->create(['user_id' => $user->id]);
+        $this->actingAs($user, 'api');
+
+        $response = $this->json('GET', route('locations.index'));
+
+        $response->assertOk();
+        $response->assertExactJson([
+            'data' => [
+                LocationResource::make($location)->toArray(request()),
+            ]
+        ]);
     }
 }

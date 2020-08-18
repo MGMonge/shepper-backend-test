@@ -7,6 +7,7 @@ use App\Exceptions\TooManyLocationsException;
 use App\Http\Requests\StoreLocationRequest;
 use App\Http\Resources\LocationResource;
 use App\Services\Geolocation\GeolocationService;
+use Illuminate\Http\Request;
 
 class LocationController extends Controller
 {
@@ -18,6 +19,11 @@ class LocationController extends Controller
     public function __construct(GeolocationService $geolocation)
     {
         $this->geolocation = $geolocation;
+    }
+
+    public function index(Request $request)
+    {
+        return LocationResource::collection($request->user()->locations);
     }
 
     public function store(StoreLocationRequest $request)

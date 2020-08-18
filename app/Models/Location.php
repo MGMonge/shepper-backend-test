@@ -13,4 +13,10 @@ class Location extends Model
         'longitude',
         'radius',
     ];
+
+    protected $casts = [
+        'latitude'  => 'int',
+        'longitude' => 'int',
+        'radius'    => 'float',
+    ];
 }
