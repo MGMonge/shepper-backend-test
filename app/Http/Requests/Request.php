@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
-class UpdateLocationRequest extends Request
+use Illuminate\Foundation\Http\FormRequest;
+
+class Request extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -11,7 +13,7 @@ class UpdateLocationRequest extends Request
      */
     public function authorize()
     {
-        return $this->user()->can('update', $this->route('location'));
+        return true;
     }
 
     /**
@@ -22,8 +24,7 @@ class UpdateLocationRequest extends Request
     public function rules()
     {
         return [
-            'title'  => 'between:3,30',
-            'radius' => 'numeric|between:0.5,50',
+            //
         ];
     }
 }

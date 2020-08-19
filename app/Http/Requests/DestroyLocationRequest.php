@@ -2,9 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 
-class DestroyLocationRequest extends FormRequest
+class DestroyLocationRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -14,17 +13,5 @@ class DestroyLocationRequest extends FormRequest
     public function authorize()
     {
         return $this->user()->can('delete', $this->route('location'));
-    }
-
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
-    public function rules()
-    {
-        return [
-            //
-        ];
     }
 }
