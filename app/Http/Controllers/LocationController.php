@@ -58,6 +58,13 @@ class LocationController extends Controller
         return LocationResource::make($location);
     }
 
+    public function destroy(DeleteLocationRequest $request, Location $location)
+    {
+        $location->delete();
+
+        return response()->json(null, 204);
+    }
+
     /**
      * @param  Request  $request
      *

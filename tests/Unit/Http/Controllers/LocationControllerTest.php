@@ -403,4 +403,41 @@ class LocationControllerTest extends TestCase
             'title' => 'Home',
         ]);
     }
+
+    //
+    // Delete a location
+    //
+
+    /** @test */
+    function guests_cannot_delete_a_location()
+    {
+        $location = factory(Location::class)->create();
+
+        $response = $this->json('DELETE', route('locations.destroy', [$location]));
+
+        $response->assertUnauthorized();
+    }
+
+    function users_cannot_delete_other_users_locations()
+    {
+        $user     = factory(User::class)->create();
+        $location = factory(Location::class)->create();
+        $this->actingAs($user, 'api');
+
+        $response = $this->json('DELETE', route('locations.destroy', [$location]));
+
+        $response->assertForbidden();
+    }
+
+    function users_can_delete_their_locations()
+    {
+        $user     = factory(User::class)->create();
+        $location = factory(Location::class)->create(['user_id' => $user->id]);
+        $this->actingAs($user, 'api');
+
+        $response = $this->json('DELETE', route('locations.destroy', [$location]));
+
+        $response->assertNoContent();
+        $this->assertDatabaseMissing('locations', ['id' => $location->id]);
+    }
 }

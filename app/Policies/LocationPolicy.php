@@ -24,4 +24,9 @@ class LocationPolicy
     {
         return $user->id === $location->user_id;
     }
+
+    public function delete(User $user, Location $location)
+    {
+        return $this->update($user, $location);
+    }
 }
