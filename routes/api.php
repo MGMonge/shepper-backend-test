@@ -19,4 +19,5 @@ Route::group(['middleware' => 'auth:api'], function () {
 
     Route::get('/locations', ['uses' => 'LocationController@index', 'as' => 'locations.index']);
     Route::post('/locations', ['uses' => 'LocationController@store', 'as' => 'locations.store']);
+    Route::put('/locations/{location}', ['uses' => 'LocationController@update', 'as' => 'locations.update']);
 });

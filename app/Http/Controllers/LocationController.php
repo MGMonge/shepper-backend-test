@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Exceptions\ForeignCoordinatesException;
 use App\Exceptions\TooManyLocationsException;
 use App\Http\Requests\StoreLocationRequest;
+use App\Http\Requests\UpdateLocationRequest;
 use App\Http\Resources\LocationResource;
+use App\Models\Location;
 use App\Services\Geolocation\GeolocationService;
 use Illuminate\Http\Request;
 
@@ -32,20 +34,45 @@ class LocationController extends Controller
             throw new TooManyLocationsException;
         }
 
-        if ( ! $this->geolocation->areCoordinatesInCountry($request->input('latitude'), $request->input('longitude'), $request->user()->country_code)) {
-            throw new ForeignCoordinatesException;
-        }
-
-        $label = $this->geolocation->getLabelForCoordinates($request->input('latitude'), $request->input('longitude'));
-
         $location = $request->user()->locations()->create([
             'title'     => $request->input('title'),
-            'label'     => $label,
+            'label'     => $this->getLabel($request),
             'latitude'  => $request->input('latitude'),
             'longitude' => $request->input('longitude'),
             'radius'    => $request->input('radius'),
         ]);
 
         return LocationResource::make($location);
+    }
+
+    public function update(UpdateLocationRequest $request, Location $location)
+    {
+        $location->update(array_filter([
+            'title'     => $request->input('title'),
+            'label'     => $this->getLabel($request),
+            'latitude'  => $request->input('latitude'),
+            'longitude' => $request->input('longitude'),
+            'radius'    => $request->input('radius'),
+        ]));
+
+        return LocationResource::make($location);
+    }
+
+    /**
+     * @param  Request  $request
+     *
+     * @return string|null
+     */
+    protected function getLabel(Request $request): ?string
+    {
+        if ($request->input('latitude') === null or $request->input('longitude') === null) {
+            return null;
+        }
+
+        if ( ! $this->geolocation->areCoordinatesInCountry($request->input('latitude'), $request->input('longitude'), $request->user()->country_code)) {
+            throw new ForeignCoordinatesException;
+        }
+
+        return $this->geolocation->getLabelForCoordinates($request->input('latitude'), $request->input('longitude'));
     }
 }

@@ -226,4 +226,181 @@ class LocationControllerTest extends TestCase
             ]
         ]);
     }
+
+    //
+    // Update a location
+    //
+
+    /** @test */
+    function guests_cannot_update_a_location()
+    {
+        $location = factory(Location::class)->create();
+
+        $response = $this->json('PUT', route('locations.update', [$location]));
+
+        $response->assertUnauthorized();
+    }
+
+    function users_cannot_update_other_users_locations()
+    {
+        $user     = factory(User::class)->create();
+        $location = factory(Location::class)->create();
+        $this->actingAs($user, 'api');
+
+        $response = $this->json('PUT', route('locations.update', [$location]));
+
+        $response->assertForbidden();
+    }
+
+    /** @test */
+    function the_title_has_a_minimum_of_characters_when_updating_a_location()
+    {
+        $user     = factory(User::class)->create();
+        $location = factory(Location::class)->create(['user_id' => $user->id]);
+        $this->actingAs($user, 'api');
+
+        $response = $this->json('PUT', route('locations.update', [$location]), [
+            'title' => 'Ho',
+        ]);
+
+        $response->assertJsonValidationErrors(['title']);
+    }
+
+    /** @test */
+    function the_title_has_a_maximum_of_characters_when_updating_a_location()
+    {
+        $user     = factory(User::class)->create();
+        $location = factory(Location::class)->create(['user_id' => $user->id]);
+        $this->actingAs($user, 'api');
+
+        $response = $this->json('PUT', route('locations.update', [$location]), [
+            'title' => str_repeat('A', 31),
+        ]);
+
+        $response->assertJsonValidationErrors(['title']);
+    }
+
+    /** @test */
+    function the_radius_must_be_numeric_when_updating_a_location()
+    {
+        $user     = factory(User::class)->create();
+        $location = factory(Location::class)->create(['user_id' => $user->id]);
+        $this->actingAs($user, 'api');
+
+        $response = $this->json('PUT', route('locations.update', [$location]), [
+            'radius' => 'foobar',
+        ]);
+
+        $response->assertJsonValidationErrors(['radius']);
+    }
+
+    /** @test */
+    function the_radius_has_a_minimum_of_kilometers_when_updating_a_location()
+    {
+        $user     = factory(User::class)->create();
+        $location = factory(Location::class)->create(['user_id' => $user->id]);
+        $this->actingAs($user, 'api');
+
+        $response = $this->json('PUT', route('locations.update', [$location]), [
+            'radius' => 0.4,
+        ]);
+
+        $response->assertJsonValidationErrors(['radius']);
+    }
+
+    /** @test */
+    function the_radius_has_a_maximum_of_kilometers_when_updating_a_location()
+    {
+        $user     = factory(User::class)->create();
+        $location = factory(Location::class)->create(['user_id' => $user->id]);
+        $this->actingAs($user, 'api');
+
+        $response = $this->json('PUT', route('locations.update', [$location]), [
+            'radius' => 51,
+        ]);
+
+        $response->assertJsonValidationErrors(['radius']);
+    }
+
+    /** @test */
+    function the_coordinates_must_be_valid_when_updating_a_location()
+    {
+        $user     = factory(User::class)->create();
+        $location = factory(Location::class)->create(['user_id' => $user->id]);
+        $this->actingAs($user, 'api');
+
+        $response = $this->json('PUT', route('locations.update', [$location]), [
+            'title'     => 'Home',
+            'latitude'  => '1',
+            'longitude' => '-1',
+            'radius'    => 25.0,
+        ]);
+
+        $response->assertJsonValidationErrors(['general']);
+    }
+
+    /** @test */
+    function users_can_update_a_location()
+    {
+        $user     = factory(User::class)->create(['country_code' => 'DE']);
+        $location = factory(Location::class)->create(['user_id' => $user->id]);
+        $this->actingAs($user, 'api');
+
+        $response = $this->json('PUT', route('locations.update', [$location]), [
+            'title'     => 'Home',
+            'latitude'  => '50.109852',
+            'longitude' => '8.681891',
+            'radius'    => 25.0,
+        ]);
+
+        $response->assertOk();
+        $response->assertExactJson([
+            'data' => LocationResource::make($location->fresh())->toArray(request())
+        ]);
+        $this->assertDatabaseHas('locations', [
+            'id'        => $location->id,
+            'title'     => 'Home',
+            'label'     => 'Frankfurt, DE',
+            'latitude'  => '50.109852',
+            'longitude' => '8.681891',
+            'radius'    => 25.0,
+            'user_id'   => $user->id,
+        ]);
+    }
+
+    /** @test */
+    function optional_fields_when_updating_a_location()
+    {
+        $user     = factory(User::class)->create(['country_code' => 'DE']);
+        $location = factory(Location::class)->create(['user_id' => $user->id]);
+        $this->actingAs($user, 'api');
+
+        $response = $this->json('PUT', route('locations.update', [$location]));
+
+        $response->assertOk();
+        $response->assertExactJson([
+            'data' => LocationResource::make($location)->toArray(request()),
+        ]);
+    }
+
+    /** @test */
+    function users_can_update_a_single_field()
+    {
+        $user     = factory(User::class)->create(['country_code' => 'DE']);
+        $location = factory(Location::class)->create(['user_id' => $user->id]);
+        $this->actingAs($user, 'api');
+
+        $response = $this->json('PUT', route('locations.update', [$location]), [
+            'title' => 'Home',
+        ]);
+
+        $response->assertOk();
+        $response->assertExactJson([
+            'data' => LocationResource::make($location->fresh())->toArray(request())
+        ]);
+        $this->assertDatabaseHas('locations', [
+            'id'    => $location->id,
+            'title' => 'Home',
+        ]);
+    }
 }
