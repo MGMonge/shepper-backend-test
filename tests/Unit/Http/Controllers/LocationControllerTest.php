@@ -241,9 +241,10 @@ class LocationControllerTest extends TestCase
         $response->assertUnauthorized();
     }
 
+    /** @test */
     function users_cannot_update_non_existing_locations()
     {
-        $user     = factory(User::class)->create();
+        $user = factory(User::class)->create();
         $this->actingAs($user, 'api');
 
         $response = $this->json('PUT', route('locations.update', ['__NOT_EXISTING__']));
@@ -251,6 +252,7 @@ class LocationControllerTest extends TestCase
         $response->assertNotFound();
     }
 
+    /** @test */
     function users_cannot_update_other_users_locations()
     {
         $user     = factory(User::class)->create();
@@ -428,6 +430,7 @@ class LocationControllerTest extends TestCase
         $response->assertUnauthorized();
     }
 
+    /** @test */
     function users_cannot_delete_other_users_locations()
     {
         $user     = factory(User::class)->create();
@@ -439,9 +442,10 @@ class LocationControllerTest extends TestCase
         $response->assertForbidden();
     }
 
+    /** @test */
     function users_cannot_delete_non_existing_locations()
     {
-        $user     = factory(User::class)->create();
+        $user = factory(User::class)->create();
         $this->actingAs($user, 'api');
 
         $response = $this->json('DELETE', route('locations.destroy', ['__NOT_EXISTING__']));
@@ -449,6 +453,7 @@ class LocationControllerTest extends TestCase
         $response->assertNotFound();
     }
 
+    /** @test */
     function users_can_delete_their_locations()
     {
         $user     = factory(User::class)->create();

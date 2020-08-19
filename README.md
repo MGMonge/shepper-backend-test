@@ -9,6 +9,7 @@ In order to run the application you must follow the steps below:
 php artisan start
 ```
 #### 3 - Try the different endpoints
+If you have postman installed you can import the collection of endpoints `./postman_collection.json`
 ```shell script
 GET    http://127.0.0.1:8888/user
 GET    http://127.0.0.1:8888/locations

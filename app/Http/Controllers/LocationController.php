@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\ForeignCoordinatesException;
 use App\Exceptions\TooManyLocationsException;
+use App\Http\Requests\DestroyLocationRequest;
 use App\Http\Requests\StoreLocationRequest;
 use App\Http\Requests\UpdateLocationRequest;
 use App\Http\Resources\LocationResource;
@@ -58,7 +59,7 @@ class LocationController extends Controller
         return LocationResource::make($location);
     }
 
-    public function destroy(DeleteLocationRequest $request, Location $location)
+    public function destroy(DestroyLocationRequest $request, Location $location)
     {
         $location->delete();
 
