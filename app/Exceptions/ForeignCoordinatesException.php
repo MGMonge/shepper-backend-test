@@ -3,7 +3,6 @@
 namespace App\Exceptions;
 
 use Illuminate\Contracts\Support\Responsable;
-use Illuminate\Http\JsonResponse;
 
 class ForeignCoordinatesException extends \RuntimeException implements Responsable
 {
@@ -12,7 +11,7 @@ class ForeignCoordinatesException extends \RuntimeException implements Responsab
      */
     public function toResponse($request)
     {
-        return new JsonResponse([
+        return response()->json([
             'errors' => [
                 'general' => [sprintf("The coordinates does not belong to user's country: %s", $request->user()->country_code)],
             ]
