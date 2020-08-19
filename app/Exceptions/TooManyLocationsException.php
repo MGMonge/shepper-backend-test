@@ -2,9 +2,7 @@
 
 namespace App\Exceptions;
 
-use Illuminate\Config\Repository;
 use Illuminate\Contracts\Support\Responsable;
-use Illuminate\Http\JsonResponse;
 
 class TooManyLocationsException extends \RuntimeException implements Responsable
 {
@@ -13,9 +11,9 @@ class TooManyLocationsException extends \RuntimeException implements Responsable
      */
     public function toResponse($request)
     {
-        return new JsonResponse([
+        return response()->json([
             'errors' => [
-                'general' => [sprintf('Cannot store more than %d locations', app(Repository::class)->get('shepper.max-locations'))],
+                'general' => [sprintf('Cannot store more than %d locations', config('shepper.max-locations'))],
             ]
         ], 422);
     }
